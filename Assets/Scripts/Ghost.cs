@@ -59,4 +59,9 @@ public class Ghost : MonoBehaviour
         }
     }
 
+    public void GhostEatPacman(){
+        this.movement.enabled = false;
+        this.gameObject.SetActive(false);
+    }
+
 }
