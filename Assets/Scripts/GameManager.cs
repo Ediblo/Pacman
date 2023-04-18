@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -13,9 +14,17 @@ public class GameManager : MonoBehaviour
     public int ghostMultiplier { get; private set; } = 1;
 
     public int score { get; private set; }
+
+    public int highestscore { get; private set; }
     
     public int lives { get; private set; }
 
+    public Text scoreText;
+
+    public Text highestScoreText;
+
+    public Text livesText;
+    
     private void Start(){
         NewGame();
     }
@@ -39,10 +48,11 @@ public class GameManager : MonoBehaviour
         }
 
         for(int i = 0; i < this.ghosts.Length; i++){
-            this.ghosts[i].gameObject.SetActive(true);
+            this.ghosts[i].ResetState();
         }
 
-        this.pacman.gameObject.SetActive(true);
+        
+        this.pacman.ResetState();
     }
 
     private void ResetState(){
@@ -65,10 +75,16 @@ public class GameManager : MonoBehaviour
 
     private void SetScore(int score){
         this.score = score;
+        scoreText.text = score.ToString();
+        if(this.score > this.highestscore){
+            this.highestscore = this.score;
+            highestScoreText.text = highestscore.ToString();
+        }
     }
 
     private void SetLives(int lives){
         this.lives = lives;
+        livesText.text = "x" + lives.ToString();
     }
 
     public void GhostEaten(Ghost ghost){
@@ -80,7 +96,11 @@ public class GameManager : MonoBehaviour
     }
 
     public void PacmanEaten(){
-        this.pacman.gameObject.SetActive(false);
+        this.pacman.DeathSequence();
+
+        for(int i = 0; i < this.ghosts.Length; i++){
+            this.ghosts[i].GhostEatPacman();
+        }
 
         SetLives(this.lives - 1);
 
@@ -88,17 +108,20 @@ public class GameManager : MonoBehaviour
             Invoke(nameof(ResetState), 3.0f);
         }
         else{
-            GameOver();
+            Invoke(nameof(GameOver), 3.0f);
         }
     }
 
     public void PelletEaten(Pellet pellet){
         pellet.gameObject.SetActive(false);
-
+        
         SetScore(this.score + pellet.points);
 
         if(!HasRemainingPellets()){
             this.pacman.gameObject.SetActive(false);
+            for(int i = 0; i < this.ghosts.Length; i++){
+                this.ghosts[i].gameObject.SetActive(false);
+        }
             Invoke(nameof(NewRound), 3.0f);
         }
     }
