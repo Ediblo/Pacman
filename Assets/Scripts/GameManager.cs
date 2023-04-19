@@ -13,9 +13,9 @@ public class GameManager : MonoBehaviour
 
     public int ghostMultiplier { get; private set; } = 1;
 
-    public int score { get; private set; }
+    public int score { get; set; }
 
-    public int highestscore { get; private set; }
+    public int highestscore { get; set; }
     
     public int lives { get; private set; }
 
@@ -24,9 +24,18 @@ public class GameManager : MonoBehaviour
     public Text highestScoreText;
 
     public Text livesText;
+
+    public Text gameOverText;
+
+    public GameObject pauseMenu;
     
+    [SerializeField] public AudioSource winSound;
+
     private void Start(){
         NewGame();
+        Load();
+        scoreText.text = score.ToString();
+        highestScoreText.text = highestscore.ToString();
     }
 
     private void Update(){
@@ -35,13 +44,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void NewGame(){
+    public void NewGame(){
         SetScore(0);
         SetLives(3);
         NewRound();
     }
 
     private void NewRound(){
+        gameOverText.enabled = false;
         foreach (Transform pellet in this.pellets)
         {
             pellet.gameObject.SetActive(true);
@@ -66,10 +76,11 @@ public class GameManager : MonoBehaviour
     }
 
     private void GameOver(){
+        gameOverText.enabled = true;
+        Save();
         for(int i = 0; i < this.ghosts.Length; i++){
             this.ghosts[i].gameObject.SetActive(false);
         }
-
         this.pacman.gameObject.SetActive(false);
     }
 
@@ -119,6 +130,7 @@ public class GameManager : MonoBehaviour
 
         if(!HasRemainingPellets()){
             this.pacman.gameObject.SetActive(false);
+            winSound.Play();
             for(int i = 0; i < this.ghosts.Length; i++){
                 this.ghosts[i].gameObject.SetActive(false);
         }
@@ -152,5 +164,21 @@ public class GameManager : MonoBehaviour
 
     private void ResetGhostMultiplier(){
         this.ghostMultiplier = 1;
+    }
+
+    public void Save(){
+        if(this.score >= this.highestscore){
+            PlayerPrefs.SetInt("highestscore", this.highestscore);
+            PlayerPrefs.SetInt("score", this.score);
+        }else if(this.score < this.highestscore){
+            PlayerPrefs.SetInt("score", this.score);
+        }else{
+            PlayerPrefs.SetInt("highestscore", this.highestscore);
+        }
+    }
+
+    public void Load(){
+        this.score = PlayerPrefs.GetInt("score");
+        this.highestscore = PlayerPrefs.GetInt("highestscore");
     }
 }
