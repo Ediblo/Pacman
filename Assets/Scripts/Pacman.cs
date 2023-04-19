@@ -11,6 +11,7 @@ public class Pacman : MonoBehaviour
     public Movement movement { get; private set; }
 
     [SerializeField] private AudioSource pacmanDeathSound;
+    [SerializeField] private AudioSource backgroundSound;
 
     public  void Awake(){
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -35,6 +36,7 @@ public class Pacman : MonoBehaviour
 
     public void ResetState(){
         enabled = true;
+        backgroundSound.Play();
         spriteRenderer.enabled = true;
         collider.enabled = true;
         deathSequence.enabled = false;
@@ -47,6 +49,7 @@ public class Pacman : MonoBehaviour
     {
         enabled = false;
         pacmanDeathSound.Play();
+        backgroundSound.Stop();
         spriteRenderer.enabled = false;
         collider.enabled = false;
         movement.enabled = false;
