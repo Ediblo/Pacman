@@ -12,6 +12,7 @@ public class Pacman : MonoBehaviour
 
     [SerializeField] private AudioSource pacmanDeathSound;
     [SerializeField] private AudioSource backgroundSound;
+    [SerializeField] private AudioSource introSound;
 
     public  void Awake(){
         spriteRenderer = GetComponent<SpriteRenderer>();
