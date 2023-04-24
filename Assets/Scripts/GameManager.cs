@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, IDataPersistence
 {
     public Ghost[] ghosts; 
 
@@ -32,10 +32,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] public AudioSource winSound;
 
     private void Start(){
-        NewGame();
-        Load();
-        scoreText.text = score.ToString();
-        highestScoreText.text = highestscore.ToString();
+        //NewGame();
+        //Load();
+        ResetState();
+        gameOverText.enabled = false;
+        this.pacman.transform.position = this.pacman.position;
+        this.pacman.movement.SetDirection(this.pacman.direction);
+        
     }
 
     private void Update(){
@@ -56,13 +59,8 @@ public class GameManager : MonoBehaviour
         {
             pellet.gameObject.SetActive(true);
         }
-
-        for(int i = 0; i < this.ghosts.Length; i++){
-            this.ghosts[i].ResetState();
-        }
-
-        
-        this.pacman.ResetState();
+    
+        ResetState();
     }
 
     private void ResetState(){
@@ -77,7 +75,7 @@ public class GameManager : MonoBehaviour
 
     private void GameOver(){
         gameOverText.enabled = true;
-        Save();
+        //Save();
         for(int i = 0; i < this.ghosts.Length; i++){
             this.ghosts[i].gameObject.SetActive(false);
         }
@@ -125,7 +123,7 @@ public class GameManager : MonoBehaviour
 
     public void PelletEaten(Pellet pellet){
         pellet.gameObject.SetActive(false);
-        
+        pellet.collected = true;
         SetScore(this.score + pellet.points);
 
         if(!HasRemainingPellets()){
@@ -149,8 +147,6 @@ public class GameManager : MonoBehaviour
         Invoke(nameof(ResetGhostMultiplier), pellet.duration);
         
         PelletEaten(pellet);
-
-
     }
 
     private bool HasRemainingPellets(){
@@ -180,5 +176,29 @@ public class GameManager : MonoBehaviour
     public void Load(){
         this.score = PlayerPrefs.GetInt("score");
         this.highestscore = PlayerPrefs.GetInt("highestscore");
+    }
+
+    public void LoadData(GameData data){
+        this.score = data.scoreS;
+        this.highestscore = data.highestscoreS;
+        this.lives = data.liveS;
+        this.pacman.position = data.playerPos; 
+        this.pacman.direction = data.playerDirect;
+        LoadInfo();
+    }
+
+    public void SaveData(ref GameData data){
+        data.scoreS = this.score;
+        data.highestscoreS = this.highestscore;
+        data.liveS = this.lives;
+        data.playerPos = this.pacman.transform.position;
+        data.playerDirect = this.pacman.movement.direction;
+    }
+
+     public void LoadInfo()
+    {
+        scoreText.text = score.ToString();
+        highestScoreText.text = highestscore.ToString();
+        livesText.text = "x" + lives.ToString();
     }
 }
