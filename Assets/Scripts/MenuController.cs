@@ -50,7 +50,5 @@ public class MenuController : MonoBehaviour
         PlayerPrefs.DeleteAll();
         Time.timeScale = 1f;
         SceneManager.LoadScene("Map1");
-    }
-
-    
+    }   
 }
